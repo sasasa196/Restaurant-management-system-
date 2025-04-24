@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Mate CPU Assessment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .role-selection-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .role-button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .role-button:hover {
+            background-color: #0056b3;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 700px;
+            /* Increased max-width */
+            display: none;
+            /* Initially hide the test */
+        }
+
+        .question-card,
+        .result-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .question-card h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+
+        .option:hover {
+            background-color: #eaeaea;
+            border-color: #aaa;
+        }
+
+        .correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #next-btn {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        #next-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #feedback-container {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        #timer-container {
+            text-align: right;
+            font-size: 0.95em;
+            color: #777;
+        }
+
+        .result-card {
+            display: none;
+            /* Initially hide the results */
+            text-align: center;
+        }
+
+        .result-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .result-card p {
+            font-size: 1.2em;
+            color: #444;
+        }
+
+        #final-score {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="role-selection-container">
+        <h2>Laundry Mate CPU Assessment</h2>
+        <button class="role-button" onclick="startAssessment('Receiver')">Receiver</button>
+        <button class="role-button" onclick="startAssessment('Spotter')">Spotter</button>
+        <button class="role-button" onclick="startAssessment('Packer')">Packer</button>
+        <button class="role-button" onclick="startAssessment('Washer')">Washer</button>
+        <button class="role-button" onclick="startAssessment('Ironer')">Ironer</button>
+        <button class="role-button" onclick="startAssessment('Crating')">Crating</button>
+        <button class="role-button" onclick="startAssessment('Dispatch')">Dispatch</button>
+        </div>
+
+    <div class="container">
+        <div id="question-container" class="question-card">
+            <h2 id="question-number">Question 1</h2>
+            <p id="question-text"></p>
+            <div id="options-container">
+                </div>
+            <div id="feedback-container"></div>
+            <div class="button-container">
+                <button id="next-btn">Next</button>
+            </div>
+            <div id="timer-container">Time Left: <span id="timer">60</span> seconds</div>
+        </div>
+
+        <div id="results-container" class="result-card">
+            <h2>Assessment Complete</h2>
+            <p>Your Score: <span id="final-score"></span> out of <span id="total-questions"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const roleSelectionContainer = document.querySelector('.role-selection-container');
+        const questionContainer = document.getElementById('question-container');
+        const questionNumberElement = document.getElementById('question-number');
+        const questionTextElement = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextButton = document.getElementById('next-btn');
+        const timerElement = document.getElementById('timer');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreElement = document.getElementById('final-score');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const mainContainer = document.querySelector('.container');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval;
+        let currentRole = "";
+        let validQuestions = [];
+
+        const questions = [{
+                question: "How are customer orders typically picked up and transported to the CPU?",
+                options: ["A. By truck", "B. By van", "C. By courier", "D. By train"],
+                correctAnswer: "A. By truck",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "What is the primary purpose of the service card with a barcode attached to each pickup bag?",
+                options: ["A. Marketing and promotions", "B. Customer reward program", "C. Order tracking and identification", "D. Payment processing"],
+                correctAnswer: "C. Order tracking and identification",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "What is the correct procedure to verify the number of bags received at the CPU against the loaded count from the HUB?",
+                options: ["A. Estimating the number", "B. Weighing the bags", "C. Counting each bag", "D. Checking the bag colors"],
+                correctAnswer: "C. Counting each bag",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "If a discrepancy is found in the number of received pickup bags, what is the appropriate initial action?",
+                options: ["A. Immediately process the bags", "B. Adjust the count to match the HUB", "C. Report the discrepancy to the supervisor", "D. Reject the delivery"],
+                correctAnswer: "C. Report the discrepancy to the supervisor",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "Upon receiving at the CPU, how are customer orders primarily categorized?",
+                options: ["A. By customer name", "B. By delivery address", "C. By service type", "D. By item color"],
+                correctAnswer: "C. By service type",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "Where should future shift orders be placed and how should they be managed to avoid confusion with immediate orders?",
+                options: ["A. In the immediate processing area", "B. In a designated holding area with clear labeling", "C. At the dispatch station", "D. Mixed with regular orders but tagged"],
+                correctAnswer: "B. In a designated holding area with clear labeling",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "What is the standard procedure for orders designated for 'immediate processing'?",
+                options: ["A. Hold them until the end of the shift", "B. Process them as soon as possible", "C. Store them separately for later", "D. Send them back to the HUB"],
+                correctAnswer: "B. Process them as soon as possible",
+                type: "multiple-choice",
+                roles: ["Receiver"]
+            },
+            {
+                question: "Which of the following correctly identifies the primary service types offered at the CPU?",
+                options: ["A. Wash, Fold, Iron", "B. Regular, Express, Premium", "C. Light, Medium, Heavy", "D. Steam, Press, Dry"],
+                correctAnswer: "B. Regular, Express, Premium",
+                type: "multiple-choice",
+                roles: ["Receiver", "Spotter", "Packer", "Washer", "Ironer", "Crating", "Dispatch"]
+            },
+            {
+                question: "What packaging options are typically used for customer orders at the CPU?",
+                options: ["A. Only plastic bags", "B. Only cardboard boxes", "C. Hangers and bags", "D. A combination of bags, boxes, and wraps"],
+                correctAnswer: "D. A combination of bags, boxes, and wraps",
+                type: "multiple-choice",
+                roles: ["Packer", "Crating", "Dispatch"]
+            },
+            {
+                question: "What is the primary purpose of using different types of tags on garments?",
+                options: ["A. To indicate price", "B. To track and identify garments throughout the process", "C. To decorate the garments", "D. To show the customer's name"],
+                correctAnswer: "B. To track and identify garments throughout the process",
+                type: "multiple-choice",
+                roles: ["Receiver", "Spotter", "Packer", "Washer", "Ironer", "Crating", "Dispatch"]
+            },
+            {
+                question: "Why is accurate and proper tagging crucial in the laundry process?",
+                options: ["A. It improves the appearance of the garments", "B. It prevents loss, delays, and customer dissatisfaction", "C. It speeds up the washing process", "D. It reduces the need for quality checks"],
+                correctAnswer: "B. It prevents loss, delays, and customer dissatisfaction",
+                type: "multiple-choice",
+                roles: ["Receiver", "Spotter", "Packer", "Washer", "Ironer", "Crating", "Dispatch"]
+            },
+            {
+                question: "Which of the following steps are essential when inspecting garments before processing?",
+                options: ["A. Checking for color fastness", "B. Checking for damage, stains, and missing items", "C. Checking for fabric type only", "D. Checking for size only"],
+                correctAnswer: "B. Checking for damage, stains, and missing items",
+                type: "multiple-choice",
+                roles: ["Spotter", "Washer", "Ironer"]
+            },
+            {
+                question: "What is the standard procedure for documenting and handling damaged garments?",
+                options: ["A. Discard them immediately", "B. Process them as usual and hope the customer doesn't notice", "C. Mark the damage and assess for repair or alternative action", "D. Offer the customer a discount without documenting"],
+                correctAnswer: "C. Mark the damage and assess for repair or alternative action",
+                type: "multiple-choice",
+                roles: ["Spotter", "Ironer"]
+            },
+            {
+                question: "What are the core steps involved in adding spotting treatment to a garment?",
+                options: ["A. Washing, drying, and ironing", "B. Identifying the stain and applying appropriate chemicals", "C. Folding and packaging", "D. Hanging and tagging"],
+                correctAnswer: "B. Identifying the stain and applying appropriate chemicals",
+                type: "multiple-choice",
+                roles: ["Spotter"]
+            },
+            {
+                question: "What are common reasons for placing garments on hold during the laundry process?",
+                options: ["A. Waiting for customer pickup", "B. Garments that require stain removal, repairs, or special instructions", "C. Garments that are ready for dispatch", "D. Garments that need to be re-washed"],
+                correctAnswer: "B. Garments that require stain removal, repairs, or special instructions",
+                type: "multiple-choice",
+                roles: ["Spotter"]
+            },
+            {
+                question: "What is the primary function of the Spotter Screen in the spotting area?",
+                options: ["A. To display advertisements", "B. To play music for the staff", "C. To assist spotters in identifying and categorizing stains", "D. To track the number of garments processed"],
+                correctAnswer: "C. To assist spotters in identifying and categorizing stains",
+                type: "multiple-choice",
+                roles: ["Spotter"]
+            },
+            {
+                question: "How do spotters typically determine the correct chemicals and techniques for effective stain removal?",
+                options: ["A. By random selection", "B. By guessing", "C. Based on their knowledge of fabrics and stain types", "D. By following a universal chemical application chart"],
+                correctAnswer: "C. Based on their knowledge of fabrics and stain types",
+                type: "multiple-choice",
+                roles: ["Spotter"]
+            },
+            {
+                question: "Which of the following options correctly lists the typical capacity classifications for washing and drying machines in a laundry facility?",
+                options: ["A. By color: Red, Blue, Green", "B. By weight: Light, Medium, Heavy", "C. By size: Small, Medium, Large", "D. By material: Cotton, Wool, Synthetic"],
+                correctAnswer: "C. By size: Small, Medium, Large",
+                type: "multiple-choice",
+                roles: ["Washer"]
+            },
+            {
+                question: "What quality checks are typically performed on garments after the washing and dry-cleaning processes?",
+                options: ["A. Checking for softness", "B. Checking for color only", "C. Checking for stain removal, damage, and overall garment condition", "D. Checking for wrinkles"],
+                correctAnswer: "C. Checking for stain removal, damage, and overall garment condition",
+                type: "multiple-choice",
+                roles: ["Washer", "Ironer"]
+            },
+            {
+                question: "During Hanger QC, what aspects of the garment are typically inspected?",
+                options: ["A. Only the fabric type", "B. Only the size label", "C. Buttons, pleats, and overall appearance", "D. Only the hanger condition"],
+                correctAnswer: "C. Buttons, pleats, and overall appearance",
+                type: "multiple-choice",
+                roles: ["Packer"]
+            },
+            {
+                question: "What is the primary purpose of ironing garments?",
+                options: ["A. To make them smell better", "B. To remove wrinkles and creases", "C. To add a design", "D. To check for color fastness"],
+                correctAnswer: "B. To remove wrinkles and creases",
+                type: "multiple-choice",
+                roles: ["Ironer"]
+            },
+            {
